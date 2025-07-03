@@ -1,5 +1,5 @@
 [default.general]
-chip = "nRF52833_xxAA"
+chip = "STM32F446RETx"
 
 [default.rtt]
 enabled = true

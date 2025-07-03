@@ -1,13 +1,35 @@
-# Embedded Rust Configuration for Microbit v2 (nRF52833)
+# Embedded Rust Project for STM32 NUCLEO-F446RE
 
-This project is configured for the **BBC micro:bit v2** which uses the **nRF52833** microcontroller. The configuration is specified across several important files that define the target architecture, memory layout, build settings, and debugging configuration.
+This project is configured for the **STM32 NUCLEO-F446RE** development board which uses the **STM32F446RET6** microcontroller. The project demonstrates basic embedded Rust functionality including LED blinking and RTT debugging output.
 
-## Important Configuration Files
+## Quick Start
+
+1. **Build the project:**
+   ```
+   cargo build
+   ```
+
+2. **Flash and run (with probe-rs):**
+   ```
+   cargo run
+   ```
+
+3. **Monitor RTT output:**
+   The program outputs debug messages via RTT which can be viewed with `probe-rs` or other RTT viewers.
+
+## Hardware Configuration
+
+This project is configured for the NUCLEO-F446RE board with the following features:
+- Built-in LED on PA5 (will blink)
+- RTT debugging output
+- Proper memory layout for STM32F446RE
+
+## Project Configuration Files
 
 ### 1. **Embed.toml** - probe-rs Configuration
 ```toml
 [default.general]
-chip = "nRF52833_xxAA"
+chip = "STM32F446RETx"
 
 [default.rtt]
 enabled = true
@@ -16,7 +38,7 @@ enabled = true
 **Purpose**: Configuration file for `probe-rs`, the modern debugging and flashing tool for embedded Rust.
 
 **Key Settings**:
-- `chip`: Specifies the exact microcontroller variant (nRF52833_xxAA for micro:bit v2)
+- `chip`: Specifies the exact microcontroller variant (STM32F446RETx for NUCLEO-F446RE)
 - `rtt.enabled`: Enables Real Time Transfer (RTT) for debugging output without a UART
 
 **For STM32 Blackpill (STM32F401CCU6)**:
@@ -32,15 +54,15 @@ enabled = true
 ```
 MEMORY
 {
-    FLASH : ORIGIN = 0x00000000, LENGTH = 512K
+    FLASH : ORIGIN = 0x08000000, LENGTH = 512K
     RAM : ORIGIN = 0x20000000, LENGTH = 128K
 }
 ```
 
 **Purpose**: Defines the memory layout for the linker. This is crucial for proper code placement and memory management.
 
-**nRF52833 Memory Layout**:
-- **FLASH**: 512KB starting at address 0x00000000
+**STM32F446RET6 Memory Layout**:
+- **FLASH**: 512KB starting at address 0x08000000
 - **RAM**: 128KB starting at address 0x20000000
 
 **For STM32 Blackpill (STM32F401CCU6)**:
@@ -52,9 +74,8 @@ MEMORY
 }
 ```
 **Key Differences**:
-- STM32 flash starts at `0x08000000` (not 0x00000000)
-- STM32F401CCU6 has 256KB flash (vs 512KB on nRF52833)
-- STM32F401CCU6 has 64KB RAM (vs 128KB on nRF52833)
+- STM32F401CCU6 has 256KB flash (vs 512KB on STM32F446)
+- STM32F401CCU6 has 64KB RAM (vs 128KB on STM32F446)
 
 ### 3. **.cargo/config.toml** - Cargo Build Configuration
 ```toml
@@ -71,7 +92,7 @@ rustflags = ["-C", "link-arg=-Tlink.x"]
 - `target`: Specifies the Rust target triple for ARM Cortex-M4F with hardware floating point
 - `rustflags`: Tells the linker to use the `link.x` script provided by `cortex-m-rt`
 
-**For STM32 Blackpill**: The configuration remains the same since STM32F401 is also Cortex-M4F with FPU.
+**For STM32 Blackpill**: The configuration remains the same since STM32F401 and STM32F446 are both Cortex-M4F with FPU.
 
 ### 4. **.vscode/settings.json** - VS Code Integration
 ```json
@@ -98,7 +119,7 @@ rustflags = ["-C", "link-arg=-Tlink.x"]
 - **eabi**: Embedded Application Binary Interface
 - **hf**: Hardware floating point support
 
-Both nRF52833 and STM32F401 use Cortex-M4F cores, so they share the same target triple.
+Both STM32F446 and STM32F401 use Cortex-M4F cores, so they share the same target triple.
 
 ## Hardware-Specific Dependencies
 
@@ -109,6 +130,7 @@ cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = "0.7.5"
 panic-halt = "1.0.0"
 rtt-target = "0.6.1"
+stm32f4xx-hal = { version = "0.21", features = ["stm32f446"] }
 ```
 
 ### For STM32 Blackpill, you would need:
@@ -121,7 +143,7 @@ rtt-target = "0.6.1"
 stm32f4xx-hal = { version = "0.21", features = ["stm32f401"] }
 ```
 
-**Additional dependency**: `stm32f4xx-hal` provides hardware abstraction layer for STM32F4 family.
+**HAL dependency**: `stm32f4xx-hal` provides hardware abstraction layer for STM32F4 family with specific feature flags for different variants.
 
 ## Setup Commands
 
@@ -141,29 +163,51 @@ cargo install probe-rs-tools
 ### Additional Setup for STM32 Development:
 ```powershell
 # Install probe-rs with STM32 support
-probe-rs chip list | findstr STM32F401
+probe-rs chip list | findstr STM32F446
 
 # Verify the chip is supported
+probe-rs info --chip STM32F446RETx
+
+# For STM32F401 Blackpill
+probe-rs chip list | findstr STM32F401
 probe-rs info --chip STM32F401CCUx
 ```
 
-## Key Differences: nRF52833 vs STM32F401
+## Key Differences: STM32F446 vs STM32F401
 
-| Aspect | nRF52833 (micro:bit v2) | STM32F401 (Blackpill) |
-|--------|-------------------------|------------------------|
-| **Core** | ARM Cortex-M4F @ 64MHz | ARM Cortex-M4F @ 84MHz |
-| **Flash** | 512KB @ 0x00000000 | 256KB @ 0x08000000 |
+| Aspect | STM32F446 (NUCLEO-F446RE) | STM32F401 (Blackpill) |
+|--------|----------------------------|------------------------|
+| **Core** | ARM Cortex-M4F @ 180MHz | ARM Cortex-M4F @ 84MHz |
+| **Flash** | 512KB @ 0x08000000 | 256KB @ 0x08000000 |
 | **RAM** | 128KB @ 0x20000000 | 64KB @ 0x20000000 |
-| **Chip ID** | nRF52833_xxAA | STM32F401CCUx |
-| **Main Features** | Bluetooth LE, 2.4GHz radio | USB OTG, more timers/peripherals |
-| **HAL Crate** | `nrf52833-hal` | `stm32f4xx-hal` |
+| **Chip ID** | STM32F446RETx | STM32F401CCUx |
+| **Main Features** | USB OTG, CAN, SAI, advanced timers | USB OTG, basic peripherals |
+| **HAL Feature** | `stm32f446` | `stm32f401` |
 
-## Migration Checklist: nRF52833 → STM32F401
+## Migration Checklist: STM32F446 → STM32F401
 
-1. **Update Embed.toml**: Change chip from "nRF52833_xxAA" to "STM32F401CCUx"
-2. **Update memory.x**: Change FLASH origin from 0x00000000 to 0x08000000, and update sizes (256KB flash, 64KB RAM)
-3. **Update Cargo.toml**: Replace nRF HAL with `stm32f4xx-hal` using "stm32f401" feature
-4. **Update source code**: Replace nRF-specific peripheral code with STM32 equivalents
+1. **Update Embed.toml**: Change chip from "STM32F446RETx" to "STM32F401CCUx"
+2. **Update memory.x**: Update sizes (256KB flash, 64KB RAM for F401)
+3. **Update Cargo.toml**: Change HAL feature from "stm32f446" to "stm32f401"
+4. **Update source code**: Adjust clock speeds and peripheral configurations for F401 limitations
 5. **Test probe-rs**: Verify the chip is detected with `probe-rs info --chip STM32F401CCUx`
 
 The target triple, cargo config, and VS Code settings remain the same since both chips use the same ARM Cortex-M4F architecture.
+
+## Hardware-Specific Features
+
+### STM32F446RET6 (NUCLEO-F446RE) Features:
+- **Built-in LED**: PA5 (User LED LD2)
+- **User Button**: PC13 (Blue push-button B1)
+- **ST-LINK/V2-1**: Integrated debugger/programmer
+- **Arduino Uno R3 compatibility**: Pin layout compatible
+- **Morpho connectors**: Extended pin access
+- **Clock**: Up to 180MHz with PLL
+- **Advanced peripherals**: CAN, SAI, QSPI, Camera interface
+
+### Example Code Features:
+The included example demonstrates:
+- System clock configuration to 180MHz
+- GPIO control for the built-in LED (PA5)
+- RTT debugging output
+- Basic delay loop using cortex-m nop instructions
