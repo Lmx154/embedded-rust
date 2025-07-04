@@ -351,3 +351,54 @@ impl UbxConfig {
         ]
     }
 }
+
+// GPS Manager - handles all GPS operations
+pub struct GpsManager {
+    parser: UbxParser,
+    last_data: GpsData,
+}
+
+impl GpsManager {
+    pub fn new() -> Self {
+        Self {
+            parser: UbxParser::new(),
+            last_data: GpsData::new(),
+        }
+    }
+
+    /// Get UBX configuration commands 
+    /// Returns the port config and PVT enable commands
+    pub fn get_config_commands(&self) -> ([u8; 28], [u8; 11]) {
+        rprintln!("Preparing UBX configuration commands...");
+        
+        let ubx_cfg_port = UbxConfig::get_port_config_ubx_only();
+        let ubx_cfg_pvt = UbxConfig::get_enable_nav_pvt();
+        
+        (ubx_cfg_port, ubx_cfg_pvt)
+    }
+
+    /// Update GPS data by reading a single byte
+    /// Returns Some(GpsData) if new GPS data is available
+    pub fn process_byte(&mut self, byte: u8) -> Option<GpsData> {
+        if let Some(gps_data) = self.parser.parse_byte(byte) {
+            self.last_data = gps_data;
+            return Some(gps_data);
+        }
+        None
+    }
+
+    /// Get the last received GPS data
+    pub fn last_data(&self) -> &GpsData {
+        &self.last_data
+    }
+
+    /// Check if GPS has a valid fix
+    pub fn has_fix(&self) -> bool {
+        self.last_data.valid
+    }
+
+    /// Get number of satellites
+    pub fn satellite_count(&self) -> u8 {
+        self.last_data.satellites
+    }
+}

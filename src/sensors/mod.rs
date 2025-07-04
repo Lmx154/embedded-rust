@@ -1,3 +1,3 @@
 pub mod gps;
 
-pub use gps::{GpsData, UbxParser, UbxConfig};
+pub use gps::GpsManager;
