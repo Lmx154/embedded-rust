@@ -10,3 +10,4 @@ panic-halt = "1.0.0"
 rtt-target = "0.6.1"
 stm32f4xx-hal = { version = "0.21", features = ["stm32f446"] }
 embedded-hal = "1.0"
+nb = "1.1"
