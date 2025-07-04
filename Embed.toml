@@ -1,5 +1,13 @@
+# Default configuration for Nucleo F446RE
 [default.general]
 chip = "STM32F446RETx"
 
 [default.rtt]
+enabled = true
+
+# Configuration for STM32F401CCU6 (Black Pill)
+[f401.general]
+chip = "STM32F401CCUx"
+
+[f401.rtt]
 enabled = true

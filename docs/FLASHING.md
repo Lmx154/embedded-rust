@@ -1,6 +1,10 @@
-# Flashing Guide for STM32 NUCLEO-F446RE
+# Flashing Guide for STM32 Projects
 
-This document provides comprehensive instructions for flashing your embedded Rust project to the STM32 NUCLEO-F446RE board using various methods and tools.
+This document provides comprehensive instructions for flashing your embedded Rust project to STM32 boards using various methods and tools.
+
+**Supported Targets:**
+- STM32 NUCLEO-F446RE (default)
+- STM32F401CCU6 "Black Pill"
 
 ## Table of Contents
 - [Method 1: probe-rs (Recommended)](#method-1-probe-rs-recommended)
@@ -36,6 +40,8 @@ The project is already configured for probe-rs via `Embed.toml` and `.cargo/conf
 ### Flashing Commands
 
 #### Option A: Using cargo run (Recommended)
+
+**For STM32F446RE Nucleo (default):**
 ```powershell
 # Build and flash in one command
 cargo run
@@ -44,10 +50,40 @@ cargo run
 cargo run --release
 ```
 
+**For STM32F401CCU6 Black Pill:**
+```powershell
+# Build and flash with F401 configuration
+cargo run --config f401
+
+# With release optimization
+cargo run --config f401 --release
+```
+
 #### Option B: Using probe-rs directly
+
+**For STM32F446RE Nucleo:**
 ```powershell
 # Build first
 cargo build
+
+# Flash the binary
+probe-rs run --chip STM32F446RETx target/thumbv7em-none-eabihf/debug/marv
+
+# Start RTT session
+probe-rs rtt --chip STM32F446RETx
+```
+
+**For STM32F401CCU6 Black Pill:**
+```powershell
+# Build with F401 feature
+cargo build --features stm32f401
+
+# Flash the binary
+probe-rs run --chip STM32F401CCUx target/thumbv7em-none-eabihf/debug/marv
+
+# Start RTT session
+probe-rs rtt --chip STM32F401CCUx
+```
 
 # Flash the binary
 probe-rs run --chip STM32F446RETx target/thumbv7em-none-eabihf/debug/marv
