@@ -5,5 +5,12 @@ target = "thumbv7em-none-eabihf"
 runner = "probe-rs run --chip STM32F446RETx"
 rustflags = ["-C", "link-arg=-Tlink.x"]
 
+# Configuration aliases for different boards
+[alias]
+run-f401 = "run --no-default-features --features black-pill-f401"
+run-f446 = "run --features nucleo-f446re"
+
 [env]
 DEFMT_LOG = "debug"
+PROBE_RS_CHIP_F401 = "STM32F401CCUx"
+PROBE_RS_CHIP_F446 = "STM32F446RETx"

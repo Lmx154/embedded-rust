@@ -8,12 +8,12 @@ cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = "0.7.5"
 panic-halt = "1.0.0"
 rtt-target = "0.6.1"
-stm32f4xx-hal = { version = "0.21", features = ["stm32f446", "stm32f401"] }
+stm32f4xx-hal = { version = "0.21", features = [] }
 embedded-hal = "1.0"
 nb = "1.1"
 libm = "0.2"
 
 [features]
 default = ["nucleo-f446re"]
-nucleo-f446re = []
-black-pill-f401 = []
+nucleo-f446re = ["stm32f4xx-hal/stm32f446"]
+black-pill-f401 = ["stm32f4xx-hal/stm32f401"]
