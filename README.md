@@ -17,6 +17,12 @@ This project is configured for the **STM32 NUCLEO-F446RE** development board whi
 3. **Monitor RTT output:**
    The program outputs debug messages via RTT which can be viewed with `probe-rs` or other RTT viewers.
 
+4. **View RTT output using probe-rs attach:**
+   ```
+   probe-rs attach --chip STM32F446RETx target/thumbv7em-none-eabihf/debug/marv
+   ```
+   This command attaches to the running program and displays RTT output in real-time.
+
 ## Hardware Configuration
 
 This project is configured for the NUCLEO-F446RE board with the following features:
